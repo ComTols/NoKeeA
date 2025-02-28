@@ -1,6 +1,7 @@
 name: Run Tests and Enforce Coverage
 
 on:
+  push:
   pull_request:
     branches:
       - main
