@@ -3,7 +3,8 @@ import os
 
 
 def start():
-    ui_path = os.getenv("STREAMLIT_UI_SCRIPT", "src\\NoKeeA\\UI\\streamlit_ui.py")
+    ui_path = os.getenv("STREAMLIT_UI_SCRIPT",
+                        "src\\NoKeeA\\UI\\streamlit_ui.py")
 
     print("Starting NoKeeA-UI...")
     streamlit_process = subprocess.Popen(

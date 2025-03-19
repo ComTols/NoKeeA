@@ -1,5 +1,6 @@
 import UI.start as ui
 
+
 def main():
     streamlit_process = ui.start()
 
