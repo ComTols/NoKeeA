@@ -13,7 +13,7 @@ def is_port_open(port):
 
 
 def test_main(capfd):
-    thread = threading.Thread(target=main.main)
+    thread = threading.Thread(target=main.main, daemon=True)
     thread.start()
     time.sleep(3)
 

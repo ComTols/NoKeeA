@@ -28,4 +28,7 @@ jobs:
 
       - name: Run Tests with Coverage
         run: |
+          export STREAMLIT_UI_SCRIPT_TEST=../../src/NoKeeA/UI/streamlit_ui.py &&
+          export STREAMLIT_UI_SCRIPT=src/NoKeeA/UI/streamlit_ui.py &&
+          cd $GITHUB_WORKSPACE &&
           poetry run pytest --cov=src --cov-report=term-missing --cov-fail-under=70
