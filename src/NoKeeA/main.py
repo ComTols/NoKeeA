@@ -1,5 +1,9 @@
+import UI.start as ui
+
 def main():
-    print("Hello World")
+    streamlit_process = ui.start()
+
+    streamlit_process.wait()
 
 
 if __name__ == "__main__":
