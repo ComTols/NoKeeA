@@ -35,6 +35,9 @@ def content():
         content if content is not None
         else st.session_state.get("editor_content", "")
     )
+
+
+
 def ai_functions():
     st.subheader("🤖 AI Features")
     video2text()
