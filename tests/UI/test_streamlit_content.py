@@ -1,11 +1,17 @@
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 
 @pytest.fixture
 def mock_streamlit():
     with patch('NoKeeA.UI.streamlit_content.st') as mock_st:
-        mock_st.session_state = {}
+        mock_st.session_state = {
+            "editor_content": "",
+            "loaded_note": "",
+            "note_name": "",
+            "last_loaded_note": None
+        }
+        mock_st.subheader = MagicMock()
         yield mock_st
 
 
@@ -15,30 +21,54 @@ def mock_quill():
         yield mock_st_quill
 
 
-def test_editor_initialization(mock_streamlit, mock_quill):
+@pytest.fixture
+def mock_session_state():
+    with patch(
+        'NoKeeA.UI.streamlit_content.initialize_session_state'
+    ) as mock_init:
+        yield mock_init
+
+
+def test_editor_initialization(mock_streamlit, mock_quill, mock_session_state):
     """Test if editor initializes with empty content"""
     from NoKeeA.UI.streamlit_content import content
     content()
+
+    # Verify session state initialization was called
+    mock_session_state.assert_called_once()
+
     mock_quill.assert_called_once()
     # Verify default empty content
     assert mock_quill.call_args[1]['value'] == ""
 
 
-def test_editor_with_existing_content(mock_streamlit, mock_quill):
+def test_editor_with_existing_content(
+        mock_streamlit, mock_quill, mock_session_state
+):
     """Test if editor loads content from session state"""
     from NoKeeA.UI.streamlit_content import content
     # Set up session state with content
     mock_streamlit.session_state["editor_content"] = "Existing content"
     content()
+
+    # Verify session state initialization was called
+    mock_session_state.assert_called_once()
+
     mock_quill.assert_called_once()
     # Verify content from session state
     assert mock_quill.call_args[1]['value'] == "Existing content"
 
 
-def test_editor_toolbar_configuration(mock_streamlit, mock_quill):
+def test_editor_toolbar_configuration(
+        mock_streamlit, mock_quill, mock_session_state
+):
     """Test if editor toolbar is configured correctly"""
     from NoKeeA.UI.streamlit_content import content
     content()
+
+    # Verify session state initialization was called
+    mock_session_state.assert_called_once()
+
     toolbar = mock_quill.call_args[1]['toolbar']
 
     # Test text formatting features
@@ -82,8 +112,12 @@ def test_editor_toolbar_configuration(mock_streamlit, mock_quill):
     assert ["blockquote", "code-block"] in toolbar
 
 
-def test_editor_html_mode(mock_streamlit, mock_quill):
+def test_editor_html_mode(mock_streamlit, mock_quill, mock_session_state):
     """Test if editor is configured to use HTML mode"""
     from NoKeeA.UI.streamlit_content import content
     content()
+
+    # Verify session state initialization was called
+    mock_session_state.assert_called_once()
+
     assert mock_quill.call_args[1]['html'] is True

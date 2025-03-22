@@ -1,18 +1,29 @@
-import subprocess
 import os
+import subprocess
+import sys
 
 
-def start():
-    ui_path = os.getenv("STREAMLIT_UI_SCRIPT",
-                        "src\\NoKeeA\\UI\\streamlit_ui.py")
+def start_ui():
+    # Get the absolute path to the UI script
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    ui_path = os.path.join(current_dir, "streamlit_ui.py")
 
-    print("Starting NoKeeA-UI...")
-    streamlit_process = subprocess.Popen(
-        ["poetry", "run", "streamlit", "run",
-         "--server.headless", "true",
-         "--server.port=8501", "--server.address=0.0.0.0",
-         ui_path],
-        stdout=subprocess.PIPE
-    )
+    print(f"Starting UI with script at: {ui_path}")
 
-    return streamlit_process
+    if not os.path.exists(ui_path):
+        print(f"Error: UI script not found at {ui_path}")
+        sys.exit(1)
+
+    try:
+        subprocess.run(
+            ["streamlit", "run",
+             "--server.headless", "true",
+             "--client.showErrorDetails", "false",
+             "--client.toolbarMode", "minimal",
+             ui_path],
+            check=True,
+            cwd=current_dir
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Error starting Streamlit: {e}")
+        sys.exit(1)

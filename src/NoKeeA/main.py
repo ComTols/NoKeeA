@@ -1,10 +1,11 @@
-from NoKeeA.UI import start as ui
+from NoKeeA.UI import start_ui
 
 
 def main():
-    streamlit_process = ui.start()
-
-    streamlit_process.wait()
+    """Start the NoKeeA application"""
+    streamlit_process = start_ui()
+    streamlit_process.wait()  # Wait for the process to complete
+    return streamlit_process
 
 
 if __name__ == "__main__":

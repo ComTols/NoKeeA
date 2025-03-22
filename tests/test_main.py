@@ -1,6 +1,5 @@
 import threading
 import time
-
 from NoKeeA import main
 import psutil
 
@@ -12,7 +11,8 @@ def is_port_open(port):
     return False
 
 
-def test_main(capfd):
+def test_main():
+    """Test if the main application starts correctly"""
     thread = threading.Thread(target=main.main, daemon=True)
     thread.start()
     time.sleep(3)

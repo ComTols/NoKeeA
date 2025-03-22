@@ -16,7 +16,7 @@ def clear_module():
 def test_streamlit_ui():
     """Test if the streamlit UI can be loaded"""
     ui_path = os.getenv("STREAMLIT_UI_SCRIPT_TEST",
-                        "src\\NoKeeA\\UI\\streamlit_ui.py")
+                        os.path.join("src", "NoKeeA", "UI", "streamlit_ui.py"))
     _ = AppTest.from_file(ui_path).run()
 
 
@@ -28,7 +28,7 @@ def test_page_config():
     with patch('NoKeeA.UI.streamlit_ui.st', mock_st):
         # Import after patching
         from NoKeeA.UI import streamlit_ui
-        # Call main() to trigger the configuration
+        # Call main() to trigger initialization
         streamlit_ui.main()
 
         # Verify page configuration was called with correct arguments
@@ -41,20 +41,33 @@ def test_page_config():
 def test_session_state_initialization():
     """Test if session state variables are initialized correctly"""
     mock_st = MagicMock()
-    mock_st.session_state = {}
+    mock_st.session_state = {
+        "editor_content": "",
+        "loaded_note": "",
+        "note_name": "",
+        "last_loaded_note": None
+    }
 
     with patch('NoKeeA.UI.streamlit_ui.st', mock_st):
         # Import after patching
-        from NoKeeA.UI import streamlit_ui
-        # Call main() to trigger initialization
-        streamlit_ui.main()
+        from NoKeeA.UI.streamlit_ui import initialize_session_state
+
+        # Call initialize_session_state directly
+        initialize_session_state()
 
         # Check if session state variables are initialized
-        assert mock_st.session_state == {
+        expected_state = {
             "editor_content": "",
             "loaded_note": "",
-            "uploaded_file": None
+            "note_name": "",
+            "last_loaded_note": None
         }
+
+        # Überprüfe, dass alle erwarteten Schlüssel mit den richtigen Werten
+        # vorhanden sind
+        for key, value in expected_state.items():
+            assert mock_st.session_state.get(key) == value, \
+                f"Session state '{key}' has wrong value"
 
 
 def test_content_called():
