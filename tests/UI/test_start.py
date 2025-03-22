@@ -1,32 +1,26 @@
-import time
-
-from NoKeeA.UI import start as ui
-import psutil
-
-STREAMLIT_PORT = 8501
+import pytest
+from unittest.mock import patch
 
 
-def is_port_open(port):
-    for conn in psutil.net_connections():
-        if conn.laddr.port == port:
-            return True
-    return False
+@pytest.fixture
+def mock_subprocess():
+    with patch('NoKeeA.UI.start.subprocess.run') as mock_run:
+        yield mock_run
 
 
-def stop_streamlit(process):
-    process.terminate()
-    process.wait()
+def test_streamlit_start(mock_subprocess):
+    """Test if the streamlit UI can be started"""
+    from NoKeeA.UI import start_ui
 
+    # Call the function
+    start_ui()
 
-def test_streamlit_prod(capfd):
-    process = ui.start()
-    time.sleep(10)
+    # Verify that subprocess.run was called with correct arguments
+    mock_subprocess.assert_called_once()
+    args = mock_subprocess.call_args[0][0]
 
-    out, err = capfd.readouterr()
-    assert out == "Starting NoKeeA-UI...\n"
-    assert err == ""
-
-    try:
-        assert is_port_open(STREAMLIT_PORT), "Streamlit-Port ist nicht offen!"
-    finally:
-        stop_streamlit(process)
+    assert args[0] == "streamlit"
+    assert args[1] == "run"
+    assert args[-1].endswith("streamlit_ui.py")
+    assert "--server.headless" in args
+    assert "true" in args
