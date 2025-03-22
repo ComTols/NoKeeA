@@ -1,6 +1,6 @@
 import time
 
-import UI.start as ui
+from NoKeeA.UI import start as ui
 import psutil
 
 STREAMLIT_PORT = 8501
