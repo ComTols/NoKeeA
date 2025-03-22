@@ -1,4 +1,4 @@
-import UI.start as ui
+from NoKeeA.UI import start as ui
 
 
 def main():

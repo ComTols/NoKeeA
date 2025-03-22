@@ -1,7 +1,7 @@
 import threading
 import time
 
-import main
+from NoKeeA import main
 import psutil
 
 
