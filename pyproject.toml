@@ -11,9 +11,14 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "psutil (>=7.0.0,<8.0.0)",
-    "streamlit (>=1.43.2,<2.0.0)"
+    "streamlit (>=1.43.2,<2.0.0)",
+    "streamlit-quill (>=0.0.3,<0.0.4)"
 ]
 
+[tool.poetry]
+packages = [
+    { include = "NoKeeA", from = "src" }
+]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
