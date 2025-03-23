@@ -1,90 +1,102 @@
 import json
 from pathlib import Path
+from typing import Optional, Dict, List
 
-# Konstanten
+# Define the notes directory
 NOTES_DIR = Path.home() / "NoKeeA_Notes"
 
 
-def ensure_notes_directory():
-    """Stellt sicher, dass das Notiz-Verzeichnis existiert."""
-    if not NOTES_DIR.exists():
-        NOTES_DIR.mkdir(parents=True)
+def ensure_notes_directory() -> None:
+    """Ensure the notes directory exists"""
+    NOTES_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def save_note(name: str, content: str) -> None:
+def save_note(name: str, content: str) -> bool:
     """
-    Speichert eine Notiz mit dem gegebenen Namen und Inhalt.
+    Save a note with the given name and content.
 
     Args:
-        name: Der Name der Notiz (ohne Dateiendung)
-        content: Der Inhalt der Notiz
+        name: The name of the note (without file extension)
+        content: The content of the note
 
-    Raises:
-        IOError: Wenn die Notiz nicht gespeichert werden konnte
+    Returns:
+        bool: True if successful, False otherwise
     """
-    ensure_notes_directory()
-    note_path = NOTES_DIR / f"{name}.json"
-
-    note_data = {
-        "name": name,
-        "content": content,
-        "last_modified": str(Path(
-            note_path
-        ).stat().st_mtime) if note_path.exists() else None
-    }
-
     try:
+        ensure_notes_directory()
+
+        # Create parent directories if they don't exist
+        note_path = NOTES_DIR / f"{name}.json"
+        note_path.parent.mkdir(parents=True, exist_ok=True)
+
+        note_data = {
+            "name": name,
+            "content": content,
+            "last_modified": str(note_path.stat().st_mtime)
+            if note_path.exists() else None
+        }
+
         with open(note_path, 'w', encoding='utf-8') as f:
             json.dump(note_data, f, ensure_ascii=False, indent=2)
+        return True
     except Exception as e:
-        raise IOError(f"Fehler beim Speichern der Notiz: {str(e)}")
+        print(f"Error saving note: {str(e)}")
+        return False
+
+
+def load_note(name: str) -> Optional[Dict]:
+    """
+    Load a note with the given name.
+
+    Args:
+        name: The name of the note (without file extension)
+
+    Returns:
+        Optional[Dict]: The note data if found, None otherwise
+    """
+    try:
+        note_path = NOTES_DIR / f"{name}.json"
+        if not note_path.exists():
+            return None
+
+        with open(note_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading note: {str(e)}")
+        return None
 
 
 def delete_note(name: str) -> bool:
     """
-    Löscht eine Notiz mit dem gegebenen Namen.
+    Delete a note with the given name.
 
     Args:
-        name: Der Name der Notiz (ohne Dateiendung)
+        name: The name of the note (without file extension)
 
     Returns:
-        bool: True wenn die Notiz gelöscht wurde,
-        False wenn sie nicht existierte
+        bool: True if successful, False otherwise
     """
-    note_path = NOTES_DIR / f"{name}.json"
-    if note_path.exists():
-        note_path.unlink()
-        return True
-    return False
+    try:
+        note_path = NOTES_DIR / f"{name}.json"
+        if note_path.exists():
+            note_path.unlink()
+            return True
+        return False
+    except Exception as e:
+        print(f"Error deleting note: {str(e)}")
+        return False
 
 
-def load_note(name: str) -> dict:
+def list_notes() -> List[str]:
     """
-    Lädt eine Notiz mit dem gegebenen Namen.
-
-    Args:
-        name: Der Name der Notiz (ohne Dateiendung)
+    List all available notes.
 
     Returns:
-        dict: Ein Dictionary mit den Notiz-Daten (name, content, last_modified)
-
-    Raises:
-        FileNotFoundError: Wenn die Notiz nicht gefunden wurde
+        List[str]: List of note names
     """
-    note_path = NOTES_DIR / f"{name}.json"
-    if not note_path.exists():
-        raise FileNotFoundError(f"Notiz '{name}' nicht gefunden")
-
-    with open(note_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-
-def list_notes() -> list:
-    """
-    Listet alle verfügbaren Notizen auf.
-
-    Returns:
-        list: Eine Liste der Notiz-Namen (ohne Dateiendung)
-    """
-    ensure_notes_directory()
-    return [f.stem for f in NOTES_DIR.glob("*.json")]
+    try:
+        ensure_notes_directory()
+        return [f.stem for f in NOTES_DIR.glob("**/*.json")]
+    except Exception as e:
+        print(f"Error listing notes: {str(e)}")
+        return []
