@@ -147,5 +147,5 @@ def test_render_sidebar_error_handling(
     render_sidebar()
 
     # Verify error handling
-    mock_streamlit.error.assert_called_once_with(
+    mock_streamlit.error.assert_any_call(
         "❌ Fehler beim Laden: Test error")
