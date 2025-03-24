@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_quill import st_quill
 from NoKeeA.utils.session_state import initialize_session_state
+from NoKeeA.utils.wikipedia_api import get_wikipedia_summary
 
 
 def content():
@@ -32,3 +33,16 @@ def content():
         content if content is not None
         else st.session_state.get("editor_content", "")
     )
+
+    with st.expander("📚 Wikipedia-Suche"):
+        wiki_term = st.text_input("🔍 Begriff eingeben", key="wiki_editor_term")
+        if st.button("🔎 Wikipedia nachschlagen"):
+            if wiki_term:
+                result = get_wikipedia_summary(wiki_term)
+                if "summary" in result:
+                    st.success(result["summary"])
+                    st.markdown(f"[🔗 Zum Artikel]({result['url']})", unsafe_allow_html=True)
+                else:
+                    st.error(result["error"])
+            else:
+                st.info("Bitte gib einen Begriff ein.")

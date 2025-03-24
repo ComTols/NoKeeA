@@ -1,5 +1,4 @@
 import streamlit as st
-from NoKeeA.utils.wikipedia_api import get_wikipedia_summary
 from NoKeeA.utils.file_operations import save_note, delete_note, \
     load_note, list_notes
 from NoKeeA.utils.session_state import initialize_session_state
@@ -183,23 +182,5 @@ def render_sidebar():
             )
         else:
             st.sidebar.error("❌ Fehler beim Vorbereiten des Exports.")
-        
-    # Wikipedia Lookup Section
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("📚 Wikipedia-Suche")
-
-    wiki_term = st.sidebar.text_input("🔍 Begriff eingeben")
-
-    if st.sidebar.button("🔎 Nachschlagen"):
-        if wiki_term:
-            result = get_wikipedia_summary(wiki_term)
-            if "summary" in result:
-                st.sidebar.success(result["summary"])
-                st.sidebar.markdown(f"[🔗 Zum Artikel]({result['url']})", unsafe_allow_html=True)
-            else:
-                st.sidebar.error(result["error"])
-        else:
-            st.sidebar.info("Bitte gib einen Begriff ein.")
-
     else:
         st.sidebar.info("ℹ️ Keine Notiz zum Exportieren vorhanden.")
