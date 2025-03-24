@@ -36,13 +36,18 @@ def content():
 
     with st.expander("📚 Wikipedia-Suche"):
         wiki_term = st.text_input("🔍 Begriff eingeben", key="wiki_editor_term")
+
         if st.button("🔎 Wikipedia nachschlagen"):
-            if wiki_term:
-                result = get_wikipedia_summary(wiki_term)
-                if "summary" in result:
-                    st.success(result["summary"])
-                    st.markdown(f"[🔗 Zum Artikel]({result['url']})", unsafe_allow_html=True)
-                else:
-                    st.error(result["error"])
+            if wiki_term and isinstance(wiki_term, str) and wiki_term.strip():
+                try:
+                    result = get_wikipedia_summary(wiki_term)
+                    if "summary" in result:
+                        st.success(result["summary"])
+                        st.markdown(f"[🔗 Zum Artikel]({result['url']})", unsafe_allow_html=True)
+                    else:
+                        st.error(result["error"])
+                except Exception as e:
+                    st.error(f"❌ Fehler bei Wikipedia-Abfrage: {e}")
             else:
-                st.info("Bitte gib einen Begriff ein.")
+                st.info("Bitte gib einen gültigen Begriff ein.")
+

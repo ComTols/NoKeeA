@@ -17,7 +17,7 @@ def test_streamlit_ui():
     """Test if the streamlit UI can be loaded"""
     ui_path = os.getenv("STREAMLIT_UI_SCRIPT_TEST",
                         os.path.join("src", "NoKeeA", "UI", "streamlit_ui.py"))
-    _ = AppTest.from_file(ui_path).run()
+    _ = AppTest.from_file(ui_path).run(timeout=10)
 
 
 def test_page_config():
