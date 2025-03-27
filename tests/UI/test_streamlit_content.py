@@ -24,7 +24,7 @@ def mock_quill():
 @pytest.fixture
 def mock_session_state():
     with patch(
-        'NoKeeA.UI.streamlit_content.initialize_session_state'
+            'NoKeeA.UI.streamlit_content.initialize_session_state'
     ) as mock_init:
         yield mock_init
 

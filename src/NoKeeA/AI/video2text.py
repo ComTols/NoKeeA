@@ -40,28 +40,33 @@ blip_model = None
 deepseek_tokenizer = None
 deepseek_model = None
 
+base_folder = Path(__file__).resolve().parent.parent.parent.parent
+
 
 def load_image_description_model():
     global blip_model, blip_processor
     if blip_processor is None or blip_model is None:
-        blip_processor = Blip2Processor.from_pretrained("blip2_model")
+        model_folder = base_folder / "blip2_model"
+        print(f"Loading BLIP model from {model_folder}")
+        blip_processor = Blip2Processor.from_pretrained(model_folder)
         blip_model = Blip2ForConditionalGeneration.from_pretrained(
-            "blip2_model")
+            model_folder)
         return "✅ Bilderkennung geladen"
     return "⏭️ Bilderkennung geladen"
 
 
 def load_summarizer_model():
+    local_dir = str(base_folder / "deepseek_model")
     snapshot_download(repo_id="deepseek-ai/DeepSeek-V2-Lite",
-                      local_dir="deepseek_model")
+                      local_dir=local_dir,)
 
     global deepseek_tokenizer, deepseek_model
     if deepseek_tokenizer is None or deepseek_model is None:
         deepseek_tokenizer = AutoTokenizer.from_pretrained(
-            "deepseek_model", trust_remote_code=False)
+            local_dir, trust_remote_code=False)
         device = "cuda" if torch.cuda.is_available() else "cpu"
         torch_dtype = torch.float16 if device == "cuda" else torch.float32
-        deepseek_model = AutoModelForCausalLM.from_pretrained("deepseek_model", torch_dtype=torch_dtype,
+        deepseek_model = AutoModelForCausalLM.from_pretrained(local_dir, torch_dtype=torch_dtype,
                                                               trust_remote_code=True, device_map="auto")
         return "✅ LLM geladen"
     return "⏭️ LLM geladen"
