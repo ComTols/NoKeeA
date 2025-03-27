@@ -1,7 +1,6 @@
 import os
 import subprocess
 import sys
-from streamlit.runtime.scriptrunner import add_script_run_ctx, get_script_run_ctx
 
 
 def start_ui():
@@ -16,8 +15,7 @@ def start_ui():
         sys.exit(1)
 
     try:
-        ctx = get_script_run_ctx()
-        process = subprocess.Popen(
+        subprocess.run(
             ["poetry", "run", "streamlit", "run",
              "--server.headless", "true",
              "--client.showErrorDetails", "false",
@@ -25,9 +23,6 @@ def start_ui():
              ui_path],
             cwd=current_dir
         )
-        if ctx is not None:
-            add_script_run_ctx(process, ctx)
-        process.wait()
     except subprocess.CalledProcessError as e:
         print(f"Error starting Streamlit: {e}")
         sys.exit(1)

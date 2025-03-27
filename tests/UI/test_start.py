@@ -19,8 +19,10 @@ def test_streamlit_start(mock_subprocess):
     mock_subprocess.assert_called_once()
     args = mock_subprocess.call_args[0][0]
 
-    assert args[0] == "streamlit"
+    assert args[0] == "poetry"
     assert args[1] == "run"
+    assert args[2] == "streamlit"
+    assert args[3] == "run"
     assert args[-1].endswith("streamlit_ui.py")
     assert "--server.headless" in args
     assert "true" in args

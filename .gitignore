@@ -32,6 +32,7 @@ ENV/
 .coverage.*
 .pytest_cache/
 htmlcov/
+tmp
 
 # IDE
 .idea/

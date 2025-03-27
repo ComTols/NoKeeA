@@ -1,9 +1,10 @@
+import numbers
 import sys
-import time
 
 import streamlit as st
 from streamlit_quill import st_quill
 from NoKeeA.utils.session_state import initialize_session_state
+from NoKeeA.AI import video2text as v2t
 
 
 def content():
@@ -37,7 +38,6 @@ def content():
     )
 
 
-
 def ai_functions():
     st.subheader("🤖 AI Features")
     video2text()
@@ -54,16 +54,39 @@ def video2text():
     if st.session_state["show_video2text_uploader"]:
         with st.container():
             st.write(
-                "Wähle ein Video aus, das von der KI zusammengefasst wird. " +
+                "Wähle ein Video aus, das von der KI zusammengefasst wird. "
                 "Die Informationen werden direkt in die Notiz eingefügt.")
             st.session_state["video2text_file_content"] = st.file_uploader(
                 "Wähle ein Video aus:", type="mp4")
             if st.session_state["video2text_file_content"] is not None:
-                st.write(
-                    "Setzte den curser an die Stelle im Text, an der die Beschreibung eingefügt werden soll.")
+                st.write("Die Beschreibung wird ans Ende der Notiz eingefügt.")
                 if st.button("📝 Convert"):
-                    with st.status("Auf KI warten..."):
-                        time.sleep(5)  # TODO: Video2Text
+                    with st.status("Auf KI warten...", expanded=True) as status:
+                        try:
+                            gen = v2t.video2text(
+                                st.session_state["video2text_file_content"])
+                            while True:
+                                step = next(gen)
+                                if isinstance(step, str):
+                                    if "video2text_progress_bar" in st.session_state:
+                                        del st.session_state["video2text_progress_bar"]
+                                    st.success(step)
+                                elif isinstance(step, numbers.Number):
+                                    if "video2text_progress_bar_text" not in st.session_state:
+                                        st.session_state["video2text_progress_bar_text"] = "Bitte warten..."
+                                    if "video2text_progress_bar" not in st.session_state:
+                                        st.session_state["video2text_progress_bar"] = st.progress(
+                                            0, st.session_state["video2text_progress_bar_text"])
+
+                                    st.session_state["video2text_progress_bar"].progress(
+                                        step, f"{st.session_state['video2text_progress_bar_text']} ~ {(step * 100):.2f}%")
+                        except StopIteration as e:
+                            st.write(e.value)
+                            status.update(
+                                label="Video zusammengefasst!",
+                                state="complete",
+                                expanded=False,
+                            )
                         st.success(
                             "✅ Video zusammengefasst und Text eingefügt")
                     st.session_state["video2text_file_content"] = None
