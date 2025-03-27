@@ -33,6 +33,7 @@ ENV/
 .pytest_cache/
 htmlcov/
 tmp
+blip2_model
 
 # IDE
 .idea/
