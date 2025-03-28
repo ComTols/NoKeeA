@@ -1,10 +1,14 @@
+import os
+
 from NoKeeA.UI import start_ui
 from huggingface_hub import snapshot_download
 
 
 def main():
     """Start the NoKeeA application"""
-    snapshot_download(repo_id="Salesforce/blip2-opt-2.7b",
+
+    if os.getenv("SKIPP_LARGE_AI_TESTS", "NO") != "YES":
+        snapshot_download(repo_id="Salesforce/blip2-opt-2.7b",
                       local_dir="blip2_model")
 
     streamlit_process = start_ui()

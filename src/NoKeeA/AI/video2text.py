@@ -360,6 +360,15 @@ def describe_image(images: list[Description]) -> list[Description]:
         Returns:
         - Updated list with descriptions for each frame.
         """
+    if os.getenv("SKIPP_LARGE_AI_TESTS", "NO") != "YES":
+        yield "✅ Bilderkennung geladen"
+        i = 0
+        for image_date in images:
+            image_date["description"] = "test"
+            i += 1
+            yield i / len(images)
+        return images
+
     yield load_image_description_model()
 
     st.session_state["video2text_progress_bar_text"] = "Frames werden beschreiben. Das kann einige Zeit dauern."

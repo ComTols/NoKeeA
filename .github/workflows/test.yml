@@ -42,6 +42,7 @@ jobs:
           export TESSERACT_PATH="$TESSERACT_PATH"
           echo "TESSERACT_PATH wurde gesetzt auf $TESSERACT_PATH"
           
+          export SKIPP_LARGE_AI_TESTS="YES"
           export STREAMLIT_UI_SCRIPT_TEST=../../src/NoKeeA/UI/streamlit_ui.py &&
           export STREAMLIT_UI_SCRIPT=src/NoKeeA/UI/streamlit_ui.py &&
           cd $GITHUB_WORKSPACE &&
