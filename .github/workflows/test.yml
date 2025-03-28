@@ -23,6 +23,14 @@ jobs:
 
       - name: Install dependencies
         run: |
+          apt update
+          apt install -y ffmpeg tesseract-ocr
+          TESSERACT_PATH=$(which tesseract)
+          sed -i '/^TESSERACT_PATH=/d' /etc/environment
+          echo "TESSERACT_PATH=\"$TESSERACT_PATH\"" | sudo tee -a /etc/environment > /dev/null
+          export TESSERACT_PATH="$TESSERACT_PATH"
+          echo "TESSERACT_PATH wurde gesetzt auf $TESSERACT_PATH"
+          
           pip install poetry
           poetry install --no-root
 
