@@ -360,7 +360,7 @@ def describe_image(images: list[Description]) -> list[Description]:
         Returns:
         - Updated list with descriptions for each frame.
         """
-    if os.getenv("SKIPP_LARGE_AI_TESTS", "NO") != "YES":
+    if os.getenv("SKIPP_LARGE_AI_TESTS", "NO") == "YES":
         yield "✅ Bilderkennung geladen"
         i = 0
         for image_date in images:
