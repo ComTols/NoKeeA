@@ -41,4 +41,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nokeea:${{ env.TAG }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nokeea2:${{ env.TAG }}

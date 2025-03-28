@@ -17,6 +17,10 @@ def main():
         This function should be called directly when running the application
         as the main script.
     """
+    if os.getenv("SKIPP_LARGE_AI_TESTS", "NO") != "YES":
+        snapshot_download(repo_id="Salesforce/blip2-opt-2.7b",
+                          local_dir="blip2_model")
+
     streamlit_process = start_ui()
     streamlit_process.wait()  # Wait for the process to complete
     return streamlit_process
