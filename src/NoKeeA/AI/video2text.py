@@ -44,6 +44,12 @@ base_folder = Path(__file__).resolve().parent.parent.parent.parent
 
 
 def load_image_description_model():
+    """
+        Loads the BLIP image captioning model and processor for describing video frames.
+
+        Returns:
+        - A status message indicating whether the model was newly loaded or already available.
+        """
     global blip_model, blip_processor
     if blip_processor is None or blip_model is None:
         model_folder = base_folder / "blip2_model"
@@ -56,9 +62,15 @@ def load_image_description_model():
 
 
 def load_summarizer_model():
+    """
+        Downloads and loads the DeepSeek language model and tokenizer for generating text summaries.
+
+        Returns:
+        - A status message indicating whether the model was newly loaded or already available.
+        """
     local_dir = str(base_folder / "deepseek_model")
     snapshot_download(repo_id="deepseek-ai/DeepSeek-V2-Lite",
-                      local_dir=local_dir,)
+                      local_dir=local_dir, )
 
     global deepseek_tokenizer, deepseek_model
     if deepseek_tokenizer is None or deepseek_model is None:
@@ -73,8 +85,19 @@ def load_summarizer_model():
 
 
 def match_frames_with_audio(
+
         video_frames: list[Description],
         video_text: list[ExtractedText]) -> list[ExtractedText]:
+    """
+        Matches extracted video frames with their corresponding audio segments.
+
+        Arguments:
+        - video_frames: List of frames with metadata and timestamps.
+        - video_text: List of transcribed audio segments with start and end times.
+
+        Returns:
+        - Updated list of audio segments, each containing a list of matched frames.
+        """
     for text_segment in video_text:
         start = math.ceil(text_segment["start"])
         end = math.floor(text_segment["end"])
@@ -87,6 +110,20 @@ def match_frames_with_audio(
 
 
 def video2text(video):
+    """
+        Orchestrates the entire video-to-text pipeline.
+
+        Steps:
+        - Saves the uploaded video.
+        - Extracts audio and converts it to text.
+        - Extracts frames and filters based on image difference.
+        - Recognizes text and describes each frame using AI.
+        - Matches frame descriptions to audio segments.
+        - Summarizes all extracted data using an LLM.
+
+        Returns:
+        - A generator yielding progress updates and eventually the final summary string.
+        """
     path = None
     try:
         gen = save_video(video)
@@ -148,6 +185,18 @@ def video2text(video):
 
 
 def save_video(video):
+    """
+        Saves the uploaded video to a temporary directory with a hash-based filename.
+
+        Arguments:
+        - video: Uploaded video file.
+
+        Yields:
+        - Status message after saving the file.
+
+        Returns:
+        - Path to the saved video file.
+        """
     Path("tmp").mkdir(parents=True, exist_ok=True)
     extinction = video.type.replace("/", ".")
     path = f"tmp/{hashlib.sha3_256(video.read()).hexdigest()}.{extinction}"
@@ -160,11 +209,27 @@ def save_video(video):
 
 
 def save_video_description(video_text, path):
+    """
+       Saves the processed video description as a JSON file.
+
+       Arguments:
+       - video_text: Extracted text and metadata to be saved.
+       - path: File path for the JSON output.
+       """
     with open(path, 'w+') as f:
         json.dump(video_text, f)
 
 
 def image_difference(img1, img2):
+    """
+        Computes the percentage of different pixels between two images.
+
+        Arguments:
+        - img1, img2: OpenCV images to compare.
+
+        Returns:
+        - Percentage of differing pixels.
+        """
     diff = cv2.absdiff(img1, img2)
     diff_gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
     non_zero_count = np.count_nonzero(diff_gray)
@@ -173,6 +238,20 @@ def image_difference(img1, img2):
 
 
 def extract_frames_convert2text(path: str, frame_rate=1, threshold=20):
+    """
+        Extracts frames from the video at a specified rate, saving only significantly different ones.
+
+        Arguments:
+        - path: Path to the video file.
+        - frame_rate: Number of frames to extract per second.
+        - threshold: Minimum difference percentage to consider a frame unique.
+
+        Yields:
+        - Progress values and final status message.
+
+        Returns:
+        - List of saved frame metadata.
+        """
     frames_folder = f"{path}.frames"
     Path(frames_folder).mkdir(parents=True, exist_ok=True)
 
@@ -213,6 +292,18 @@ def extract_frames_convert2text(path: str, frame_rate=1, threshold=20):
 
 
 def extract_audio_convert2text(path: str):
+    """
+        Extracts the audio from a video file and transcribes it using Whisper.
+
+        Arguments:
+        - path: Path to the video file.
+
+        Yields:
+        - Progress messages during audio extraction and transcription.
+
+        Returns:
+        - Transcription result object from Whisper.
+        """
     command = ["ffmpeg", "-i", path, "-q:a",
                "0", "-map", "a", f"{path}.wav", "-y"]
     ffmpeg_result = subprocess.run(
@@ -231,6 +322,18 @@ def extract_audio_convert2text(path: str):
 
 
 def text_recognition(images: list[Description]) -> list[Description]:
+    """
+        Applies OCR to a list of images to extract visible text from each frame.
+
+        Arguments:
+        - images: List of frame metadata including file paths.
+
+        Yields:
+        - Progress updates.
+
+        Returns:
+        - Updated list with recognized text for each image.
+        """
     st.session_state["video2text_progress_bar_text"] = "Texte werden extrahiert."
 
     i = 0
@@ -245,6 +348,18 @@ def text_recognition(images: list[Description]) -> list[Description]:
 
 
 def describe_image(images: list[Description]) -> list[Description]:
+    """
+        Generates a description for each frame using the BLIP model.
+
+        Arguments:
+        - images: List of frame metadata including file paths.
+
+        Yields:
+        - Progress updates and model load status.
+
+        Returns:
+        - Updated list with descriptions for each frame.
+        """
     yield load_image_description_model()
 
     st.session_state["video2text_progress_bar_text"] = "Frames werden beschreiben. Das kann einige Zeit dauern."
@@ -267,6 +382,18 @@ def describe_image(images: list[Description]) -> list[Description]:
 
 
 def summarize_with_deepseek(prompt: str) -> str:
+    """
+        Uses either OpenAI or the local DeepSeek model to generate a textual summary based on a prompt.
+
+        Arguments:
+        - prompt: The constructed input string to be summarized.
+
+        Yields:
+        - Progress updates if using DeepSeek.
+
+        Returns:
+        - Generated summary text.
+        """
     api_key = os.getenv("OPENAI_API_KEY")
     if api_key is not None:
         return use_openai(api_key, prompt)
@@ -284,12 +411,23 @@ def summarize_with_deepseek(prompt: str) -> str:
 
 
 def use_openai(api_key: str, prompt: str) -> str:
+    """
+        Uses the OpenAI API to generate a summary from the given prompt.
+
+        Arguments:
+        - api_key: API key for OpenAI.
+        - prompt: Prompt to be summarized.
+
+        Returns:
+        - Summary text generated by OpenAI.
+        """
     client = OpenAI(
         api_key=api_key,
     )
 
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
+        temperature=0.5,
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -299,8 +437,18 @@ def use_openai(api_key: str, prompt: str) -> str:
 
 
 def build_prompt(video_description: list[ExtractedText]):
-    prompt = """I want a summary of a video for my notes. All information from the video should be summarized.
+    """
+        Constructs a prompt from extracted video segments to be used for summarization.
 
+        Arguments:
+        - video_description: List of transcribed and described video segments.
+
+        Returns:
+        - A string prompt with detailed context and structure for the LLM.
+        """
+    prompt = """I want a summary of a video for my notes. All information from the video should be summarized.
+The goal is to help me study for an exam using the notes.
+You must include all the information that might be asked in an exam or quiz in the summary!
 The information should be divided into sections and described in detail using bullet points.
 
 The way the information was extracted from the video is inaccurate. Give more weight to the spoken text and use the

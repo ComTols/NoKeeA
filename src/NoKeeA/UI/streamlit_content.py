@@ -1,5 +1,4 @@
 import numbers
-import sys
 
 import streamlit as st
 from streamlit_quill import st_quill
@@ -64,9 +63,11 @@ def content():
                 try:
                     result = get_wikipedia_summary(wiki_term)
                     if "summary" in result:
-                        st.session_state["wiki_result"] = result  # store result temporarily
+                        # store result temporarily
+                        st.session_state["wiki_result"] = result
                         st.success(result["summary"])
-                        st.markdown(f"[🔗 Zum Artikel]({result['url']})", unsafe_allow_html=True)
+                        st.markdown(
+                            f"[🔗 Zum Artikel]({result['url']})", unsafe_allow_html=True)
                     else:
                         st.error(result["error"])
                 except Exception as e:
@@ -91,12 +92,28 @@ def content():
 
 
 def ai_functions():
+    """
+    Renders the main content area for AI-related features in the application.
+
+    Features:
+    - Video2Text: Upload a video and let the AI generate a textual summary
+      that is appended to the user's note.
+    """
     st.subheader("🤖 AI Features")
     video2text()
-    text2text()
 
 
 def video2text():
+    """
+    Handles the Video2Text feature, including UI logic and integration
+    with the AI-powered video summarization backend.
+
+    Workflow:
+    - Toggles a file uploader UI on button click.
+    - Accepts MP4 video files from the user.
+    - Displays a progress bar and status messages during AI processing.
+    - Appends the generated text summary to the user's current note content.
+    """
     if "show_video2text_uploader" not in st.session_state:
         st.session_state["show_video2text_uploader"] = False
 
@@ -140,86 +157,12 @@ def video2text():
                                 state="complete",
                                 expanded=False,
                             )
+                            current_content = st.session_state.get(
+                                "editor_content", "")
+                            new_content = current_content + f"<p>{e.value}</p>"
+                            st.session_state["editor_content"] = new_content
+                            update_quill_editor()
                         st.success(
                             "✅ Video zusammengefasst und Text eingefügt")
                     st.session_state["video2text_file_content"] = None
-
-
-def clear_text():
-    st.session_state["show_text2text_area_content"] = ""
-
-
-def text2text():
-    if "show_text2text_area" not in st.session_state:
-        st.session_state["show_text2text_area"] = False
-
-    if "show_text2text_area_content" not in st.session_state:
-        st.session_state["show_text2text_area_content"] = ""
-
-    if "show_text2text_area_history" not in st.session_state:
-        st.session_state["show_text2text_area_history"] = [{
-            "role": "user",
-            "content": "Was ist die Antwort auf das Leben, das Universum und Allem?",
-        }, {
-            "role": "assistent",
-            "content": "Die Antwort ist 42!",
-        }, {
-            "role": "user",
-            "content": "Was ist die Antwort auf das Leben, das Universum und Allem?",
-        }, {
-            "role": "assistent",
-            "content": "Die Antwort ist 41!",
-        }]
-
-    if st.button("🖹 Text2Text"):
-        st.session_state["show_text2text_area"] = not st.session_state["show_text2text_area"]
-
-    if st.session_state["show_text2text_area"]:
-        with st.container():
-            st.markdown("""
-                <style>
-                .float-left {
-                    width: 80%;
-                    float: left;
-                    margin: 10px;
-                    border: 1px solid;
-                    padding: 1em;
-                    border-radius: 1em;
-                }
-                .float-right {
-                    width: 80%;
-                    float: right;
-                    text-align: right;
-                    margin: 10px;
-                    border: 1px solid;
-                    padding: 1em;
-                    border-radius: 1em;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-
-            for index, message in enumerate(st.session_state["show_text2text_area_history"]):
-                if message["role"] == "user":
-                    st.markdown(f'<div class="float-right"><h4>User:</h4>{message["content"]}</div>',
-                                unsafe_allow_html=True)
-                else:
-                    st.markdown(f'<div class="float-left"><h4>System</h4>{message["content"]}</div>',
-                                unsafe_allow_html=True)
-                    st.button("📑 Nachricht in Notiz einfügen",
-                              on_click=lambda msg=message["content"]: paste_text(
-                                  msg),
-                              key=f"paste_button_{index}")
-
-            st.text_area(
-                "Stelle eine Frage:",
-                key="show_text2text_area_content"
-            )
-
-            if st.button("✅ Senden", on_click=clear_text):
-                # TODO: senden
-                pass
-
-
-def paste_text(txt):
-    print(txt, file=sys.stderr)
-    pass
+                    st.rerun()

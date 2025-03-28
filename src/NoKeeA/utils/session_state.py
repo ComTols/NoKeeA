@@ -5,7 +5,7 @@ def initialize_session_state():
     """
     Initialize all required keys in the Streamlit session state.
 
-    This ensures that the editor and note-related features work reliably 
+    This ensures that the editor and note-related features work reliably
     by setting default values for keys if they are not already present.
     """
     if "editor_content" not in st.session_state:
