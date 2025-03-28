@@ -36,6 +36,12 @@ jobs:
 
       - name: Run Tests with Coverage
         run: |
+          TESSERACT_PATH=$(which tesseract)
+          sudo sed -i '/^TESSERACT_PATH=/d' /etc/environment
+          echo "TESSERACT_PATH=\"$TESSERACT_PATH\"" | sudo tee -a /etc/environment > /dev/null
+          export TESSERACT_PATH="$TESSERACT_PATH"
+          echo "TESSERACT_PATH wurde gesetzt auf $TESSERACT_PATH"
+          
           export STREAMLIT_UI_SCRIPT_TEST=../../src/NoKeeA/UI/streamlit_ui.py &&
           export STREAMLIT_UI_SCRIPT=src/NoKeeA/UI/streamlit_ui.py &&
           cd $GITHUB_WORKSPACE &&
