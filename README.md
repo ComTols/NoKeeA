@@ -95,16 +95,13 @@ poetry run streamlit run src/NoKeeA/UI/streamlit_ui.py
 
 ### KI-Funktionen nutzen
 
-1. **Video-zu-Text-Konvertierung**:
-    - Laden Sie ein Video hoch
-    - Warten Sie auf die Verarbeitung
-    - Die Transkription wird automatisch in Ihre Notiz eingefügt
+**Video-zu-Text-Konvertierung**:
+- Laden Sie ein Video hoch
+- Warten Sie, bis die ultimative AI-Chain das Video verarbeitet hat
+- Eine Zusammenfassung des Videos wird in die Notizen eingefügt
 
-2. **Bildbeschreibung**:
-    - Laden Sie ein Bild hoch
-    - Die KI generiert automatisch eine Beschreibung
-    - Die Beschreibung wird in Ihre Notiz eingefügt
-
-3. **Texterkennung**:
-    - Laden Sie ein Bild mit Text hoch
-    - Der Text wird automatisch erkannt und extrahiert
+### Wikipedia nutzen
+**Wikipediaartikel schnell einfügen**
+- Suchen Sie nach einem Stichwort
+- Erhalten Sie das Ergebnis und überprüfen Sie den verlinkten Artikel
+- Fügen Sie den Artikel direkt in die Notizen ein
