@@ -1,4 +1,7 @@
+import os
+
 from NoKeeA.UI import start_ui
+from huggingface_hub import snapshot_download
 
 
 def main():

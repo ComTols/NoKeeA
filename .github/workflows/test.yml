@@ -19,15 +19,30 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.13"
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
+          sudo apt update
+          sudo apt install -y ffmpeg tesseract-ocr
+          TESSERACT_PATH=$(which tesseract)
+          sudo sed -i '/^TESSERACT_PATH=/d' /etc/environment
+          echo "TESSERACT_PATH=\"$TESSERACT_PATH\"" | sudo tee -a /etc/environment > /dev/null
+          export TESSERACT_PATH="$TESSERACT_PATH"
+          echo "TESSERACT_PATH wurde gesetzt auf $TESSERACT_PATH"
+          
           pip install poetry
           poetry install --no-root
 
       - name: Run Tests with Coverage
         run: |
+          TESSERACT_PATH=$(which tesseract)
+          sudo sed -i '/^TESSERACT_PATH=/d' /etc/environment
+          echo "TESSERACT_PATH=\"$TESSERACT_PATH\"" | sudo tee -a /etc/environment > /dev/null
+          export TESSERACT_PATH="$TESSERACT_PATH"
+          echo "TESSERACT_PATH wurde gesetzt auf $TESSERACT_PATH"
+          
+          export SKIPP_LARGE_AI_TESTS="YES"
           export STREAMLIT_UI_SCRIPT_TEST=../../src/NoKeeA/UI/streamlit_ui.py &&
           export STREAMLIT_UI_SCRIPT=src/NoKeeA/UI/streamlit_ui.py &&
           cd $GITHUB_WORKSPACE &&

@@ -4,6 +4,8 @@ from NoKeeA.UI.streamlit_content import content
 from NoKeeA.UI.streamlit_sidebar import render_sidebar
 from NoKeeA.utils.session_state import initialize_session_state
 
+from src.NoKeeA.UI.streamlit_content import ai_functions
+
 
 def main():
     """Initialize and run the main Streamlit user interface for NoKeeA.
@@ -36,6 +38,9 @@ def main():
 
     # Render main content
     content()
+
+    # Render ai functions
+    ai_functions()
 
 
 if __name__ == "__main__":

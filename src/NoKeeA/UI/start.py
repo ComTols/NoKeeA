@@ -34,12 +34,11 @@ def start_ui():
 
     try:
         subprocess.run(
-            ["streamlit", "run",
+            ["poetry", "run", "streamlit", "run",
              "--server.headless", "true",
              "--client.showErrorDetails", "false",
              "--client.toolbarMode", "minimal",
              ui_path],
-            check=True,
             cwd=current_dir
         )
     except subprocess.CalledProcessError as e:

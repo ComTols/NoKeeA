@@ -25,7 +25,8 @@ def test_get_wikipedia_summary_success():
 def test_get_wikipedia_summary_disambiguation():
     """Test disambiguation error when the term is ambiguous."""
     with patch('wikipedia.page') as mock_page:
-        mock_page.side_effect = wikipedia.exceptions.DisambiguationError("Test", ["Option1", "Option2", "Option3"])
+        mock_page.side_effect = wikipedia.exceptions.DisambiguationError(
+            "Test", ["Option1", "Option2", "Option3"])
 
         result = get_wikipedia_summary("AmbiguousTerm")
 
@@ -39,7 +40,8 @@ def test_get_wikipedia_summary_disambiguation():
 def test_get_wikipedia_summary_page_error():
     """Test page error when the article does not exist."""
     with patch('wikipedia.page') as mock_page:
-        mock_page.side_effect = wikipedia.exceptions.PageError("NonexistentArticle123")
+        mock_page.side_effect = wikipedia.exceptions.PageError(
+            "NonexistentArticle123")
 
         result = get_wikipedia_summary("NonexistentArticle123")
 

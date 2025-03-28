@@ -4,6 +4,7 @@ import wikipedia
 # Set language to German
 wikipedia.set_lang("de")
 
+
 def get_wikipedia_summary(term: str, sentences: int = 3) -> dict:
     """
     Searches Wikipedia for a given term and returns a short summary.

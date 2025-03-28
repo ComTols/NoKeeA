@@ -240,8 +240,10 @@ def setup_session(monkeypatch):
     mock_st.subheader = MagicMock()
 
     monkeypatch.setattr(streamlit_content, "st", mock_st)
-    monkeypatch.setattr(streamlit_content, "st_quill", MagicMock(return_value="test content"))
-    monkeypatch.setattr(streamlit_content, "initialize_session_state", MagicMock())
+    monkeypatch.setattr(streamlit_content, "st_quill",
+                        MagicMock(return_value="test content"))
+    monkeypatch.setattr(streamlit_content,
+                        "initialize_session_state", MagicMock())
     return mock_st
 
 
@@ -269,7 +271,8 @@ def test_wikipedia_search_and_insert(setup_session, monkeypatch):
         "summary": "Python ist eine Programmiersprache.",
         "url": "https://de.wikipedia.org/wiki/Python"
     }
-    monkeypatch.setattr(streamlit_content, "get_wikipedia_summary", lambda term: mock_result)
+    monkeypatch.setattr(streamlit_content,
+                        "get_wikipedia_summary", lambda term: mock_result)
 
     streamlit_content.content()
 
@@ -292,6 +295,8 @@ def test_update_quill_editor_sets_new_key(monkeypatch):
         The `editor_key` is used to force reinitialization of the Quill editor,
         ensuring changes like content updates or UI refreshes are reflected.
     """
-    monkeypatch.setattr(streamlit_content.st, "session_state", {"loaded_note": "TestNote"})
+    monkeypatch.setattr(streamlit_content.st, "session_state", {
+                        "loaded_note": "TestNote"})
     streamlit_content.update_quill_editor()
-    assert streamlit_content.st.session_state["editor_key"].startswith("editor_")
+    assert streamlit_content.st.session_state["editor_key"].startswith(
+        "editor_")
