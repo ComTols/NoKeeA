@@ -1,0 +1,98 @@
+name: Generate Sphinx Documentation
+
+on:
+  push:
+    branches:
+      - main
+      - testdocu
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+      - testdocu
+
+jobs:
+  build-docs:
+    name: Build Sphinx Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install sphinx sphinx-autodoc-typehints myst-parser \
+            streamlit streamlit-quill wikipedia beautifulsoup4 pytesseract \
+            whisper opencv-python transformers torch openai furo
+
+      - name: Create Sphinx project
+        run: |
+          mkdir -p docs/source
+          sphinx-quickstart --quiet --sep --project "NoKeeA" --author "Your Name" --version "0.1" --language en --ext-autodoc --ext-napoleon --ext-viewcode --output-dir docs
+
+      - name: Configure Sphinx
+        run: |
+          echo "import os, sys" > docs/source/conf.py
+          echo "sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))" >> docs/source/conf.py
+          echo "project = 'NoKeeA'" >> docs/source/conf.py
+          echo "copyright = '2024, Your Name'" >> docs/source/conf.py
+          echo "author = 'Your Name'" >> docs/source/conf.py
+          echo "extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'myst_parser']" >> docs/source/conf.py
+          echo "source_suffix = {'.rst': 'restructuredtext', '.md': 'markdown'}" >> docs/source/conf.py
+          echo "add_module_names = False" >> docs/source/conf.py
+          echo "autodoc_default_options = {'members': True, 'undoc-members': True, 'private-members': True, 'special-members': True, 'show-inheritance': True, 'imported-members': True}" >> docs/source/conf.py
+          echo "autodoc_member_order = 'bysource'" >> docs/source/conf.py
+          echo "autodoc_typehints = 'description'" >> docs/source/conf.py
+          echo "autodoc_mock_imports = ['streamlit', 'streamlit_quill', 'src', 'torch', 'openai']" >> docs/source/conf.py
+          echo "napoleon_google_docstring = True" >> docs/source/conf.py
+          echo "napoleon_numpy_docstring = False" >> docs/source/conf.py
+          echo "napoleon_include_init_with_doc = True" >> docs/source/conf.py
+          echo "napoleon_include_private_with_doc = True" >> docs/source/conf.py
+          echo "napoleon_include_special_with_doc = True" >> docs/source/conf.py
+          echo "napoleon_use_admonition_for_examples = True" >> docs/source/conf.py
+          echo "napoleon_use_admonition_for_notes = True" >> docs/source/conf.py
+          echo "napoleon_use_admonition_for_references = True" >> docs/source/conf.py
+          echo "napoleon_use_ivar = True" >> docs/source/conf.py
+          echo "napoleon_use_param = True" >> docs/source/conf.py
+          echo "napoleon_use_rtype = True" >> docs/source/conf.py
+          echo "napoleon_type_aliases = None" >> docs/source/conf.py
+
+      - name: Use README.md as index.md
+        run: |
+          cp README.md docs/source/index.md
+
+      - name: Generate API Docs
+        run: |
+          sphinx-apidoc -o docs/source src/NoKeeA -f -e --implicit-namespaces --separate --module-first --full
+
+      - name: Patch generated rst files to include members
+        run: |
+          for file in $(find docs/source/ -name "*.rst"); do
+            awk '/^\.\. automodule::/ {
+              print;
+              print "  :members:";
+              print "  :undoc-members:";
+              print "  :show-inheritance:";
+              next
+            }1' "$file" > "$file.tmp"
+            mv "$file.tmp" "$file"
+          done
+
+      - name: Build HTML Docs
+        run: |
+          cd docs
+          PYTHONPATH=$PYTHONPATH:../src sphinx-build -b html source build/html -v -D html_theme=furo
+
+      - name: Upload documentation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sphinx-documentation
+          path: docs/build/html

@@ -1,0 +1,42 @@
+name: Build Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release
+      - develope
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine Image Tag
+        id: tag
+        run: |
+          echo "Find tag by branch name ${{ github.ref }}..."
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "TAG=latest" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
+            echo "TAG=unstable" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/develope" ]]; then
+            echo "TAG=dev" >> $GITHUB_ENV
+          else
+            echo "TAG=untagged" >> $GITHUB_ENV
+          fi
+          echo "Building image with tag: ${{ env.TAG }}"
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nokeea:${{ env.TAG }}

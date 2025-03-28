@@ -1,0 +1,20 @@
+name: Restrict PRs to Main
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-source-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if PR is from release or hotfix
+        run: |
+          allowed_sources=("release" "hotfix")
+
+          if [[ ! " ${allowed_sources[@]} " =~ " ${{ github.head_ref }} " ]]; then
+            echo "❌ PRs to 'main' must come from 'release' or 'hotfix', but got '${{ github.head_ref }}'"
+            exit 1
+          fi
