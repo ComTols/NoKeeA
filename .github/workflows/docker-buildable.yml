@@ -28,6 +28,8 @@ jobs:
             echo "TAG=unstable" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/develope" ]]; then
             echo "TAG=dev" >> $GITHUB_ENV
+          else
+            echo "TAG=untagged" >> $GITHUB_ENV
           fi
           echo "Building image with tag: ${{ env.TAG }}"
 
