@@ -9,14 +9,19 @@ from .streamlit_content import update_quill_editor
 
 
 def render_sidebar():
-    """
-    Renders the Streamlit sidebar with note management and import/export functionality.
+    """Renders the Streamlit sidebar with note management and import/export functionality.
 
-    This function allows the user to:
-    - Load existing notes
-    - Create, rename, save, or delete notes
-    - Import files as new notes or append to existing ones
-    - Export current note content in various formats
+    This function provides a comprehensive sidebar interface for managing notes and handling
+    file operations. It includes features for:
+    - Loading existing notes
+    - Creating, renaming, saving, or deleting notes
+    - Importing files as new notes or appending to existing ones
+    - Exporting current note content in various formats
+
+    The sidebar is organized into sections:
+    - Note management (load, save, delete, create new)
+    - File import/export operations
+    - Format selection for exports
 
     Returns:
         None: The function renders UI elements but does not return any values.

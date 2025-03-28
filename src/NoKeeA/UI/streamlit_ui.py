@@ -20,7 +20,7 @@ def main():
     components are properly initialized and displayed.
 
     Returns:
-        None
+        None: The function renders UI elements but does not return any values.
 
     Note:
         This function should be called by Streamlit when the application

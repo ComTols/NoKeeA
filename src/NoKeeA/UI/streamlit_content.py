@@ -9,26 +9,31 @@ from NoKeeA.AI import video2text as v2t
 
 
 def update_quill_editor():
-    """
-    Updates the editor key in Streamlit's session state to trigger a re-render.
+    """Updates the editor key in Streamlit's session state to trigger a re-render.
 
     The key is dynamically generated based on the current time and the loaded note name.
     This ensures the editor is refreshed, e.g., after inserting new content.
+
+    Returns:
+        None: The function updates the session state but does not return any values.
     """
     st.session_state["editor_key"] = f"editor_{time.time()}_{st.session_state.get('loaded_note', 'new')}"
 
 
 def content():
-    """
-    Renders the main content area: Quill editor and Wikipedia search.
+    """Renders the main content area: Quill editor and Wikipedia search.
+
+    This function initializes the session state and renders the main UI components:
+    - A rich text editor with a configured toolbar
+    - A Wikipedia search section with article preview and insertion capabilities
 
     Features:
-    - Initializes session state.
-    - Displays a rich text editor with a configured toolbar.
-    - Allows searching for Wikipedia articles.
-    - Shows article summaries.
-    - Appends article summaries to the note on button click.
-    - Uses dynamic keys to force editor refresh when needed.
+        - Initializes session state
+        - Displays a rich text editor with a configured toolbar
+        - Allows searching for Wikipedia articles
+        - Shows article summaries
+        - Appends article summaries to the note on button click
+        - Uses dynamic keys to force editor refresh when needed
 
     Returns:
         None: The function renders UI elements but does not return any values.
