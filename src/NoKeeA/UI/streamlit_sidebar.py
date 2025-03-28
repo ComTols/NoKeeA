@@ -17,6 +17,9 @@ def render_sidebar():
     - Create, rename, save, or delete notes
     - Import files as new notes or append to existing ones
     - Export current note content in various formats
+
+    Returns:
+        None: The function renders UI elements but does not return any values.
     """
 
     initialize_session_state()

@@ -29,6 +29,9 @@ def content():
     - Shows article summaries.
     - Appends article summaries to the note on button click.
     - Uses dynamic keys to force editor refresh when needed.
+
+    Returns:
+        None: The function renders UI elements but does not return any values.
     """
     initialize_session_state()
 

@@ -21,7 +21,21 @@ except ImportError:
 
 
 def get_supported_extensions():
-    """Get list of supported file extensions"""
+    """Get list of supported file extensions for import and export operations.
+
+    This function returns a list of file extensions that the application can
+    handle for both importing and exporting notes.
+
+    Returns:
+        list: A list of supported file extensions including:
+              - .txt: Plain text files
+              - .md: Markdown files
+              - .pdf: PDF files (only if PyMuPDF is available)
+
+    Note:
+        The availability of PDF support depends on whether PyMuPDF is installed
+        in the environment. The function dynamically checks for this dependency.
+    """
     extensions = [".txt", ".md"]
     if PYMUPDF_AVAILABLE:  # Only check for PyMuPDF for import
         extensions.append(".pdf")
@@ -29,18 +43,28 @@ def get_supported_extensions():
 
 
 def import_file(file_path):
-    """Import content from a file.
+    """Import content from a file into the application.
+
+    This function handles importing content from various file formats into the
+    application, supporting text, markdown, and PDF files (if PyMuPDF is available).
 
     Args:
         file_path (str): Path to the file to import
 
     Returns:
-        dict: Dictionary containing the imported content and metadata
-        {
-            "name": str,  # Name of the file without extension
-            "content": str,  # Content of the file
-            "extension": str  # File extension
-        }
+        Optional[dict]: A dictionary containing the imported content and metadata:
+                       {
+                           "name": str,      # Name of the file without extension
+                           "content": str,   # Content of the file
+                           "extension": str  # File extension
+                       }
+                       Returns None if the import fails or the file type is not supported.
+
+    Note:
+        - The function automatically detects the file type based on extension
+        - Content is cleaned and formatted during import
+        - PDF import requires PyMuPDF to be installed
+        - Any errors during import are logged to the console
     """
     try:
         file_path = Path(file_path)
@@ -74,14 +98,30 @@ def import_file(file_path):
 
 
 def import_pdf(file_path):
-    """Import content from a
-    PDF file with structure preservation using PyMuPDF.
+    """Import content from a PDF file with structure preservation.
+
+    This function extracts content from a PDF file while preserving its structure,
+    including text formatting, images, and page breaks. It uses PyMuPDF for PDF
+    processing.
 
     Args:
-        file_path (Path): Path to the PDF file
+        file_path (Path): Path to the PDF file to import
 
     Returns:
-        str: HTML content with preserved structure
+        str: HTML content with preserved structure, including:
+             - Text content with formatting
+             - Embedded images (converted to base64)
+             - Page breaks
+             - Document structure
+
+    Raises:
+        ImportError: If PyMuPDF is not installed
+
+    Note:
+        - Images are extracted and converted to base64-encoded PNG format
+        - Page breaks are preserved using HTML div elements
+        - The function requires PyMuPDF to be installed
+        - Any errors during image extraction are logged but don't stop the import
     """
     if not PYMUPDF_AVAILABLE:
         raise ImportError("PDF import requires PyMuPDF to be installed")
@@ -142,7 +182,29 @@ def import_pdf(file_path):
 
 
 def convert_text_to_html(text: str) -> str:
-    """Convert text to HTML with structure preservation"""
+    """Convert plain text to HTML with structure preservation.
+
+    This function converts plain text content to HTML while attempting to
+    preserve the document's structure and formatting.
+
+    Args:
+        text (str): The plain text content to convert
+
+    Returns:
+        str: HTML content with preserved structure, including:
+             - Headings (h1 for short uppercase lines, h2 for longer ones)
+             - Bullet points (lines starting with •)
+             - Numbered lists (lines starting with numbers)
+             - Regular paragraphs
+
+    Note:
+        The function uses heuristics to detect document structure:
+        - Short uppercase lines (< 10 chars) are treated as h1 headings
+        - Longer uppercase lines are treated as h2 headings
+        - Lines starting with • are converted to bullet points
+        - Lines starting with numbers followed by dots are treated as list items
+        - All other non-empty lines are treated as paragraphs
+    """
     lines = text.split('\n')
     html_lines = []
 
@@ -171,7 +233,28 @@ def convert_text_to_html(text: str) -> str:
 
 
 def export_file(content: str, file_path: str) -> Optional[str]:
-    """Export content to a file"""
+    """Export content to a file in the specified format.
+
+    This function exports the application's content to various file formats,
+    supporting text, markdown, and PDF (if reportlab is available).
+
+    Args:
+        content (str): The content to export
+        file_path (str): The path where the file should be saved
+
+    Returns:
+        Optional[str]: The exported content as a string if successful,
+                      None if the export fails or the format is not supported
+
+    Note:
+        - The export format is determined by the file extension
+        - PDF export requires reportlab to be installed
+        - The function handles different content types appropriately:
+          - Text files: Raw content
+          - Markdown: Converted from HTML
+          - PDF: Formatted with proper styling
+        - Any errors during export are logged to the console
+    """
     if not file_path:
         return None
 
@@ -200,13 +283,30 @@ def export_file(content: str, file_path: str) -> Optional[str]:
 
 
 def export_to_pdf(content):
-    """Export content to PDF with proper formatting.
+    """Export content to PDF with proper formatting and styling.
+
+    This function converts HTML content to a PDF document with proper formatting,
+    including custom styles for different text elements.
 
     Args:
         content (str): HTML content to export
 
     Returns:
-        bytes: PDF content
+        bytes: The PDF content as bytes
+
+    Raises:
+        ImportError: If reportlab is not installed
+
+    Note:
+        The function:
+        - Creates a PDF with proper margins and page size
+        - Applies custom styles for different text elements
+        - Preserves document structure and formatting
+        - Requires reportlab to be installed
+        - Uses custom styles for:
+          - Normal text (11pt, proper spacing)
+          - Heading 1 (16pt, bold)
+          - Heading 2 (14pt, bold)
     """
     if not REPORTLAB_AVAILABLE:
         raise ImportError("PDF export requires reportlab to be installed")
