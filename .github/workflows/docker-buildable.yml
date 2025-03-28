@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - release
-      - develop
+      - develope
 
 jobs:
   build-check:
@@ -26,7 +26,7 @@ jobs:
             echo "TAG=latest" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
             echo "TAG=unstable" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          elif [[ "${{ github.ref }}" == "refs/heads/develope" ]]; then
             echo "TAG=dev" >> $GITHUB_ENV
           fi
           echo "Building image with tag: ${{ env.TAG }}"
@@ -37,4 +37,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nokeea2:${{ env.TAG }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nokeea:${{ env.TAG }}
