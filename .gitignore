@@ -32,8 +32,6 @@ ENV/
 .coverage.*
 .pytest_cache/
 htmlcov/
-tmp
-blip2_model
 
 # IDE
 .idea/
@@ -44,3 +42,7 @@ blip2_model
 # Operating System
 .DS_Store
 Thumbs.db
+
+# Run
+tmp
+blip2_model

@@ -5,10 +5,20 @@ from NoKeeA.utils.session_state import initialize_session_state
 from NoKeeA.utils.file_import_export import import_file, export_file, \
     get_supported_extensions
 import os
+from .streamlit_content import update_quill_editor
 
 
 def render_sidebar():
-    """Render the sidebar with controls"""
+    """
+    Renders the Streamlit sidebar with note management and import/export functionality.
+
+    This function allows the user to:
+    - Load existing notes
+    - Create, rename, save, or delete notes
+    - Import files as new notes or append to existing ones
+    - Export current note content in various formats
+    """
+
     initialize_session_state()
 
     st.sidebar.title("⚙️ Einstellungen")
@@ -34,6 +44,7 @@ def render_sidebar():
             note_data = load_note(selected_note)
             st.session_state["editor_content"] = note_data["content"]
             st.session_state["loaded_note"] = note_data["name"]
+            update_quill_editor()
             st.session_state["note_name"] = note_data["name"]
             st.session_state["last_loaded_note"] = selected_note
             st.sidebar.success(f"✅ Notiz '{selected_note}' geladen.")
@@ -56,6 +67,7 @@ def render_sidebar():
                     st.session_state.get("editor_content", "")
                 )
                 st.session_state["loaded_note"] = st.session_state["note_name"]
+                update_quill_editor()
                 st.sidebar.success(
                     f"✅ Notiz '{st.session_state['note_name']}' gespeichert.")
             except Exception as e:
@@ -72,6 +84,7 @@ def render_sidebar():
                 # Reset all relevant session state variables
                 st.session_state["editor_content"] = ""
                 st.session_state["loaded_note"] = ""
+                update_quill_editor()
                 st.session_state["note_name"] = ""
                 st.session_state["last_loaded_note"] = None
             else:
@@ -85,6 +98,7 @@ def render_sidebar():
         st.session_state["note_name"] = new_note_name
         st.session_state["editor_content"] = ""
         st.session_state["loaded_note"] = new_note_name
+        update_quill_editor()
         st.session_state["last_loaded_note"] = new_note_name
 
         # Save the empty note immediately
@@ -97,6 +111,7 @@ def render_sidebar():
             st.session_state["note_name"] = ""
             st.session_state["loaded_note"] = ""
             st.session_state["last_loaded_note"] = None
+            update_quill_editor()
 
     # Import/Export section
     st.sidebar.markdown("---")
@@ -132,6 +147,7 @@ def render_sidebar():
                     st.session_state["last_loaded_note"] = None
                     st.sidebar.success(
                         f"✅ Datei '{uploaded_file.name}' importiert.")
+                    update_quill_editor()
                 else:
                     # Append to current content with a separator
                     current_content = st.session_state.get(
